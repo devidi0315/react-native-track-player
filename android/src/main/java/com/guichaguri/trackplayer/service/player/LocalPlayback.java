@@ -185,6 +185,14 @@ public class LocalPlayback extends ExoPlayback<SimpleExoPlayer> {
         manager.onTrackUpdate(track, position, null, null);
     }
 
+    public void enableCallMode(boolean b) {
+        if(b)
+            player.setAudioAttributes(new com.google.android.exoplayer2.audio.AudioAttributes.Builder()
+                    .setUsage(C.USAGE_VOICE_COMMUNICATION).build());
+        else
+            player.setAudioAttributes(new com.google.android.exoplayer2.audio.AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA).build());
+    }
     @Override
     public float getPlayerVolume() {
         return player.getVolume();

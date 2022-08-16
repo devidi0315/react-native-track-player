@@ -350,6 +350,22 @@ public class MusicModule extends ReactContextBaseJavaModule implements ServiceCo
     }
 
     @ReactMethod
+    public void enableCallMode(final Promise callback) {
+        waitForConnection(() -> {
+            binder.getPlayback().enableCallMode(true);
+            callback.resolve(null);
+        });
+    }
+
+    @ReactMethod
+    public void disableCallMode(final Promise callback) {
+        waitForConnection(() -> {
+            binder.getPlayback().enableCallMode(false);
+            callback.resolve(null);
+        });
+    }
+
+    @ReactMethod
     public void seekTo(final float seconds, final Promise callback) {
         waitForConnection(() -> {
             long secondsToSkip = Utils.toMillis(seconds);

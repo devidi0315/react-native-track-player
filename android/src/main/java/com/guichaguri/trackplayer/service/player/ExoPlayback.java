@@ -165,6 +165,8 @@ public abstract class ExoPlayback<T extends Player> implements EventListener, Me
         player.setPlayWhenReady(false);
     }
 
+    public abstract void enableCallMode(boolean b);
+
     public boolean isRemote() {
         return false;
     }

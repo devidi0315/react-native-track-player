@@ -307,6 +307,14 @@ async function getRepeatMode(): Promise<RepeatMode> {
   return TrackPlayer.getRepeatMode()
 }
 
+async function enableCallMode(): Promise<void> {
+  return TrackPlayer.enableCallMode()
+}
+
+async function disableCallMode(): Promise<void> {
+  return TrackPlayer.disableCallMode()
+}
+
 export default {
   // MARK: - General API
   setupPlayer,
@@ -338,7 +346,8 @@ export default {
   setVolume,
   setRate,
   setRepeatMode,
-
+  enableCallMode,
+  disableCallMode,
   // MARK: - Getters
   getVolume,
   getRate,
