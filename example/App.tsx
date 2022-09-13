@@ -141,6 +141,9 @@ const App = () => {
         <TouchableWithoutFeedback onPress={() => TrackPlayer.skipToNext()}>
           <Text style={styles.secondaryActionButton}>Next</Text>
         </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => TrackPlayer.enableCallMode()}>
+          <Text style={styles.secondaryActionButton}>test</Text>
+        </TouchableWithoutFeedback>
       </View>
     </SafeAreaView>
   );

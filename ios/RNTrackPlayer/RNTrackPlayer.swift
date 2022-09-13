@@ -292,6 +292,17 @@ public class RNTrackPlayer: RCTEventEmitter {
         resolve(player != nil)
     }
 
+    @objc(enableCallMode:rejecter:)
+    public func enableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.None);
+        resolve(player != nil)
+    }
+
+    @objc(disableCallMode:rejecter:)
+    public func disableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+        resolve(player != nil)
+    }
     @objc(destroy)
     public func destroy() {
         print("Destroying player")
