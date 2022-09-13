@@ -11,7 +11,7 @@ import {
 import Slider from '@react-native-community/slider';
 import TrackPlayer, {
   Capability,
-  Event,
+  Event, IOSCategory,
   RepeatMode,
   State,
   usePlaybackState,
@@ -31,7 +31,7 @@ const setupIfNecessary = async () => {
     return;
   }
 
-  await TrackPlayer.setupPlayer({});
+  await TrackPlayer.setupPlayer({iosCategory: IOSCategory.PlayAndRecord});
   await TrackPlayer.updateOptions({
     stopWithApp: false,
     capabilities: [
@@ -138,7 +138,7 @@ const App = () => {
             {playbackState === State.Playing ? 'Pause' : 'Play'}
           </Text>
         </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback onPress={() => TrackPlayer.skipToNext()}>
+        <TouchableWithoutFeedback onPress={() => TrackPlayer.disableCallMode()}>
           <Text style={styles.secondaryActionButton}>Next</Text>
         </TouchableWithoutFeedback>
         <TouchableWithoutFeedback onPress={() => TrackPlayer.enableCallMode()}>

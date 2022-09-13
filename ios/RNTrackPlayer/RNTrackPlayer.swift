@@ -195,9 +195,9 @@ public class RNTrackPlayer: RCTEventEmitter {
         // Progressively opt into AVAudioSession policies for background audio
         // and AirPlay 2.
         if #available(iOS 13.0, *) {
-            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .longFormAudio, options: sessionCategoryOptions)
+            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .default, options: sessionCategoryOptions)
         } else if #available(iOS 11.0, *) {
-            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .longForm, options: sessionCategoryOptions)
+            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .default, options: sessionCategoryOptions)
         } else {
             try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, options: sessionCategoryOptions)
         }
@@ -294,13 +294,13 @@ public class RNTrackPlayer: RCTEventEmitter {
 
     @objc(enableCallMode:rejecter:)
     public func enableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.None);
+        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.none);
         resolve(player != nil)
     }
 
     @objc(disableCallMode:rejecter:)
     public func disableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.speaker);
         resolve(player != nil)
     }
     @objc(destroy)
