@@ -201,7 +201,7 @@ public class RNTrackPlayer: RCTEventEmitter {
         } else {
             try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, options: sessionCategoryOptions)
         }
-
+        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.speaker);
         // setup event listeners
         player.remoteCommandController.handleChangePlaybackPositionCommand = { [weak self] event in
             if let event = event as? MPChangePlaybackPositionCommandEvent {
