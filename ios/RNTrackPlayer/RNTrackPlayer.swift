@@ -17,7 +17,7 @@ public class RNTrackPlayer: RCTEventEmitter {
 
     private var hasInitialized = false
     private let player = QueuedAudioPlayer()
-
+    private var headphonesConnected = false;
     // MARK: - Lifecycle Methods
 
     public override init() {
@@ -113,8 +113,39 @@ public class RNTrackPlayer: RCTEventEmitter {
                                        selector: #selector(handleInterruption),
                                        name: AVAudioSession.interruptionNotification,
                                        object: nil)
+        notificationCenter.addObserver(self,
+                                       selector: #selector(handleRouteChange),
+                                       name: AVAudioSession.routeChangeNotification,
+                                       object: nil)
     }
 
+    @objc func handleRouteChange(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+                let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+                    return
+            }
+
+            // Switch over the route change reason.
+            switch reason {
+
+            case .newDeviceAvailable: // New device found.
+                let session = AVAudioSession.sharedInstance()
+                headphonesConnected = hasHeadphones(in: session.currentRoute)
+
+            case .oldDeviceUnavailable: // Old device removed.
+                if let previousRoute =
+                    userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription {
+                    headphonesConnected = !hasHeadphones(in: previousRoute)
+                }
+
+            default: ()
+            }
+    }
+    func hasHeadphones(in routeDescription: AVAudioSessionRouteDescription) -> Bool {
+        // Filter the outputs to only those with a port type of headphones.
+        return !routeDescription.outputs.filter({$0.portType == .bluetoothA2DP}).isEmpty
+    }
     @objc func handleInterruption(notification: Notification) {
         guard let userInfo = notification.userInfo,
               let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
@@ -195,13 +226,13 @@ public class RNTrackPlayer: RCTEventEmitter {
         // Progressively opt into AVAudioSession policies for background audio
         // and AirPlay 2.
         if #available(iOS 13.0, *) {
-            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .default, options: sessionCategoryOptions)
+            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .longFormAudio, options: sessionCategoryOptions)
         } else if #available(iOS 11.0, *) {
-            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .default, options: sessionCategoryOptions)
+            try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, policy: sessionCategory == .ambient ? .default : .longForm, options: sessionCategoryOptions)
         } else {
             try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, options: sessionCategoryOptions)
         }
-        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.speaker);
+
         // setup event listeners
         player.remoteCommandController.handleChangePlaybackPositionCommand = { [weak self] event in
             if let event = event as? MPChangePlaybackPositionCommandEvent {
@@ -294,13 +325,17 @@ public class RNTrackPlayer: RCTEventEmitter {
 
     @objc(enableCallMode:rejecter:)
     public func enableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.none);
+        if(!headphonesConnected) {
+            try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord)
+            try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.none);
+        }
         resolve(player != nil)
     }
 
     @objc(disableCallMode:rejecter:)
     public func disableCallMode(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         try? AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSession.PortOverride.speaker);
+        try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
         resolve(player != nil)
     }
     @objc(destroy)
