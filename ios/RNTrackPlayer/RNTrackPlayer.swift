@@ -144,7 +144,8 @@ public class RNTrackPlayer: RCTEventEmitter {
     }
     func hasHeadphones(in routeDescription: AVAudioSessionRouteDescription) -> Bool {
         // Filter the outputs to only those with a port type of headphones.
-        return !routeDescription.outputs.filter({$0.portType == .bluetoothA2DP}).isEmpty
+        return !routeDescription.outputs.filter({
+            ($0.portType == .bluetoothA2DP) || ($0.portType == .headphones)}).isEmpty
     }
     @objc func handleInterruption(notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -232,7 +233,7 @@ public class RNTrackPlayer: RCTEventEmitter {
         } else {
             try? AVAudioSession.sharedInstance().setCategory(sessionCategory, mode: sessionCategoryMode, options: sessionCategoryOptions)
         }
-
+        headphonesConnected = hasHeadphones(in: AVAudioSession.sharedInstance().currentRoute)
         // setup event listeners
         player.remoteCommandController.handleChangePlaybackPositionCommand = { [weak self] event in
             if let event = event as? MPChangePlaybackPositionCommandEvent {
